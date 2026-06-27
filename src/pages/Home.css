@@ -6,8 +6,9 @@
 }
 
 .home {
-  background: #f6f6f8;
+  background: var(--bg);
   min-height: 100vh;
+  transition: background 0.3s ease;
 }
 
 /* NAVBAR */
@@ -17,13 +18,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 60px;
-  background: white;
-  border-bottom: 1px solid #eee;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
 }
 
 .logo {
   font-weight: bold;
   font-size: 20px;
+  color: var(--text);
 }
 
 .nav-links {
@@ -33,7 +35,7 @@
 
 .nav-links a {
   text-decoration: none;
-  color: #555;
+  color: var(--text-muted);
   font-weight: 500;
 }
 
@@ -47,10 +49,11 @@
   border: none;
   font-weight: 500;
   cursor: pointer;
+  color: var(--text);
 }
 
 .register {
-  background: #5b55d4;
+  background: var(--primary);
   color: white;
   border: none;
   padding: 10px 18px;
@@ -80,8 +83,8 @@
 
 .badge {
   display: inline-block;
-  background: #e6e7ff;
-  color: #4f4dd8;
+  background: var(--primary-50);
+  color: var(--primary);
   padding: 10px 18px;
   border-radius: 25px;
   font-size: 14px;
@@ -100,7 +103,7 @@
 
 .hero p {
   font-size: 18px;
-  color: #666;
+  color: var(--text-muted);
   max-width: 700px;
   margin: auto;
   line-height: 1.6;
@@ -109,69 +112,97 @@
 /* CARD CÓDIGO */
 
 .code-card {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--bg-card);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   width: 500px;
   margin: 40px auto;
   padding: 40px;
   border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  transition: var(--transition);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  transition: var(--transition), background 0.3s ease, border-color 0.3s ease;
 }
 
 .code-card:hover {
-  box-shadow: 0 16px 40px rgba(79, 70, 229, 0.12);
+  box-shadow: var(--shadow-xl);
 }
 
 .code-card p {
   margin-bottom: 15px;
-  color: #444;
+  color: var(--text);
   font-size: 18px;
 }
 
 .code-input {
   display: flex;
+  align-items: stretch;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.code-input:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  background: var(--bg-card);
 }
 
 .code-input input {
   flex: 1;
-  padding: 12px;
-  border-radius: 10px 0 0 10px;
-  border: 1px solid #ddd;
+  min-width: 0;
+  height: 100%;
+  padding: 0 16px;
+  border-radius: 0;
+  border: none;
   font-size: 16px;
+  background: transparent;
+  color: var(--text);
+}
+
+.code-input input:focus {
+  outline: none;
 }
 
 .arrow-btn {
-  display: flex;
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  height: 42px;
-  margin-top: 6px;
-  width: 50px;
-  font-weight: bold;
-  padding: 10px 18px;
-  border-radius: 0 10px 10px 0;
-  font-size: 15px;
-  cursor: pointer;
-
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  height: 100%;
+  width: 56px;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
   border: none;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
   color: white;
-
-  transition: opacity 0.2s ease, transform 0.2s ease !important;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  transition: filter 0.2s ease, box-shadow 0.2s ease;
 }
 
-.arrow-btn:hover {
-  opacity: 0.9;
+/* Specificity por encima del global `button:hover` para que el botón
+   pegado al input no se desalinee al elevarse. */
+.code-input .arrow-btn:hover {
   color: white;
-  transform: scale(1.05);
+  filter: brightness(1.08);
+  transform: none;
 }
 
-.arrow-btn:active {
-  transform: scale(0.95);
+.code-input .arrow-btn:active {
+  transform: none;
+  filter: brightness(0.95);
+}
+
+.code-input .arrow-btn:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
 }
 
 /* BOTONES */
@@ -208,9 +239,10 @@
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  background: #ffffff;
+  background: var(--bg-card);
   position: relative;
   overflow: hidden;
+  color: var(--primary);
 }
 
 .btn-style500 {
@@ -230,27 +262,28 @@
 }
 
 .secondary-btn {
-  background: #f8f8f8;
-  border: 1px solid #ddd;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
   padding: 14px 22px;
   border-radius: 10px;
   cursor: pointer;
-  color: #444;
+  color: var(--text);
   font-size: 14px;
   width: 240px;
   height: 55px;
 }
 
 .secondary-btn:hover {
-  background: #dde2ff !important;
+  background: var(--primary-50) !important;
 }
 
 /* FEATURES SECTION */
 
 .features {
-  background: #ffffff;
+  background: var(--bg-card);
   text-align: center;
   padding: 120px 20px;
+  transition: background 0.3s ease;
 }
 
 .masked-text {
@@ -285,7 +318,7 @@
 }
 
 .features-subtitle {
-  color: #666;
+  color: var(--text-muted);
   max-width: 700px;
   margin: auto;
   margin-bottom: 70px;
@@ -320,8 +353,8 @@
 .feature-icon {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #e7e8ff 0%, #d4d5ff 100%);
-  color: #4f4dd8;
+  background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -339,10 +372,11 @@
 .feature-card h3 {
   margin-bottom: 10px;
   font-size: 20px;
+  color: var(--text);
 }
 
 .feature-card p {
-  color: #666;
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
@@ -388,16 +422,17 @@
 .steps {
   text-align: center;
   padding: 120px 20px;
-  background: linear-gradient(180deg, var(--bg) 0%, #ffffff 100%);
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-card) 100%);
 }
 
 .steps h2 {
   font-size: 36px;
   margin-bottom: 10px;
+  color: var(--text);
 }
 
 .steps-subtitle {
-  color: #666;
+  color: var(--text-muted);
   margin-bottom: 60px;
   font-size: 18px;
 }
@@ -435,10 +470,11 @@
 
 .step-card h3 {
   margin-bottom: 10px;
+  color: var(--text);
 }
 
 .step-card p {
-  color: #666;
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
@@ -481,15 +517,16 @@
 /* AI SECTION */
 
 .ai-section {
-  background: #ffffff;
+  background: var(--bg-card);
   padding: 120px 20px;
   text-align: center;
+  transition: background 0.3s ease;
 }
 
 .ai-badge {
   display: inline-block;
-  background: #e7e8fb;
-  color: #4b48a7;
+  background: var(--primary-50);
+  color: var(--primary);
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 14px;
@@ -500,6 +537,7 @@
   font-size: 40px;
   font-weight: 800;
   text-align: center;
+  color: var(--text);
 }
 
 /* cada letra */
@@ -513,7 +551,7 @@
 
 .letter:hover {
   transform: scale(1.4);
-  color: #4b48a7;
+  color: var(--primary);
 }
 
 .letter:hover + .letter {
@@ -523,6 +561,7 @@
 .ai-section h2 {
   font-size: 36px;
   margin-bottom: 60px;
+  color: var(--text);
 }
 
 /* GRID */
@@ -539,38 +578,39 @@
 /* CARD */
 
 .ai-card {
-  background: white;
+  background: var(--bg-card);
   padding: 30px;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
   text-align: left;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+  border: 1px solid var(--border);
 }
 
 .ai-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(79, 70, 229, 0.1);
+  box-shadow: 0 16px 40px rgba(79, 70, 229, 0.2);
 }
 
 .ai-icon {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 2px solid #5b55d4;
+  border: 2px solid var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #5b55d4;
+  color: var(--primary);
   margin-bottom: 15px;
 }
 
 .ai-card h3 {
   margin-bottom: 10px;
+  color: var(--text);
 }
 
 .ai-card p {
-  color: #666;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
@@ -583,10 +623,11 @@
 .cta-section h2 {
   font-size: 36px;
   margin-bottom: 10px;
+  color: var(--text);
 }
 
 .cta-section p {
-  color: #666;
+  color: var(--text-muted);
   margin-bottom: 30px;
 }
 
@@ -751,9 +792,18 @@
     font-size: 16px;
   }
 
+  .code-input {
+    height: 48px;
+  }
+
   .code-input input {
     font-size: 15px;
-    padding: 10px;
+    padding: 0 14px;
+  }
+
+  .code-input .arrow-btn {
+    width: 52px;
+    font-size: 20px;
   }
 
   .hero-buttons {

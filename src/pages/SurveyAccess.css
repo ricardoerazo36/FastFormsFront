@@ -1,6 +1,6 @@
 .survey-access-page {
   min-height: 100%;
-  background: #f6f6f8;
+  background: var(--bg);
   padding: 32px 20px 48px;
 }
 
@@ -18,7 +18,7 @@
 }
 
 .survey-access-code {
-  color: #4b5563;
+  color: var(--text-muted);
   font-size: 14px;
 }
 
@@ -29,26 +29,27 @@
 }
 
 .survey-state-card {
-  background: white;
+  background: var(--bg-card);
   padding: 28px;
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
 }
 
 .survey-state-card h2 {
   margin-bottom: 10px;
-  color: #111827;
+  color: var(--text);
 }
 
 .survey-state-card p {
-  color: #6b7280;
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
 .survey-state-meta {
   display: inline-flex;
   margin-top: 14px;
-  color: #4f46e5;
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -67,8 +68,8 @@
 .survey-chip {
   display: inline-flex;
   align-items: center;
-  background: #e7e8ff;
-  color: #4f46e5;
+  background: var(--primary-50);
+  color: var(--primary);
   padding: 8px 14px;
   border-radius: 999px;
   font-size: 13px;
@@ -78,23 +79,50 @@
 
 .survey-intro-card h1 {
   margin-bottom: 12px;
-  color: #111827;
+  color: var(--text);
 }
 
 .survey-intro-card p {
-  color: #6b7280;
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
 .survey-question-card {
   padding: 18px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: #fcfcff;
+  background: var(--bg-soft);
 }
 
 .survey-question-card + .survey-question-card {
   margin-top: 16px;
+}
+
+.survey-question-card-readonly {
+  opacity: 0.85;
+  position: relative;
+}
+
+.survey-question-card-readonly::after {
+  content: "Dictando por voz...";
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5b21b6;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  display: none;
+}
+
+.survey-option-item-readonly {
+  cursor: default;
+  opacity: 0.7;
 }
 
 .survey-question-label {
@@ -104,7 +132,7 @@
   gap: 12px;
   margin-bottom: 14px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text);
 }
 
 .survey-required-badge {
@@ -116,12 +144,13 @@
 
 .survey-answer-input {
   margin-bottom: 0;
-  border: 1px solid var(--gray-300);
-  background: white;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text);
   border-radius: 10px;
   padding: 12px;
   font-size: 15px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .survey-answer-input:focus {
@@ -148,25 +177,25 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 14px 16px;
-  background: white;
-  color: #374151;
+  background: var(--bg-card);
+  color: var(--text);
   font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
 
 .survey-option-item:hover {
-  border-color: #c7d2fe;
-  background: #f8fafc;
+  border-color: var(--primary-200);
+  background: var(--bg-soft);
 }
 
 .survey-option-item-selected {
-  border-color: #4f46e5;
-  background: #eef2ff;
-  color: #111827;
+  border-color: var(--primary);
+  background: var(--primary-50);
+  color: var(--text);
   font-weight: 500;
 }
 
@@ -217,13 +246,27 @@
 }
 
 .back-btn {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  width: 40px;
-  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
   font-size: 18px;
+  line-height: 1;
+  color: var(--text);
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.back-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary-200);
+  background: var(--primary-50);
+  transform: translateX(-2px);
 }
 
 @media (max-width: 1024px) {
@@ -260,7 +303,7 @@
     bottom: 0;
     flex-direction: column;
     align-items: stretch;
-    background: #f6f6f8;
+    background: var(--bg);
     padding-top: 14px;
     z-index: 5;
   }
@@ -310,4 +353,84 @@
   .survey-answer-input {
     font-size: 15px;
   }
+}
+
+/* US-15 t2 — Seccion "Autorrellenar por voz". */
+
+.autofill-voice-card {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.25);
+}
+
+.autofill-voice-card .autofill-voice-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.autofill-voice-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.autofill-voice-title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.autofill-voice-subtitle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* US-15 t2 — Overlay de bloqueo total mientras el backend procesa. */
+
+.autofill-blocking-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #ffffff;
+  padding: 24px;
+  text-align: center;
+  animation: autofill-blocking-fade 0.2s ease;
+}
+
+@keyframes autofill-blocking-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.autofill-blocking-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.autofill-blocking-subtitle {
+  margin: 0;
+  max-width: 420px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #cbd5e1;
 }

@@ -13,25 +13,27 @@
 }
 
 .modal-card {
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 28px;
   max-width: 420px;
   width: 100%;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border);
   text-align: left;
   animation: scaleIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .modal-title {
   margin: 0 0 10px;
-  color: #111827;
+  color: var(--text);
   font-size: 20px;
 }
 
 .modal-message {
   margin: 0 0 22px;
-  color: #4b5563;
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
@@ -51,13 +53,13 @@
 }
 
 .modal-cancel-btn {
-  background: #f3f4f6;
-  color: #374151;
-  border-color: #e5e7eb;
+  background: var(--bg-soft);
+  color: var(--text);
+  border-color: var(--border);
 }
 
 .modal-confirm-btn {
-  background: #4f46e5;
+  background: var(--primary);
   color: #ffffff;
 }
 

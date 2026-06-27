@@ -11,6 +11,7 @@ import {
   saveDraft,
   updateDraft,
   getSurvey,
+  generateSurveyDraft,
 } from "../lib/apiClient";
 import "./CreateSurvey.css";
 
@@ -25,6 +26,9 @@ const REVERSE_QUESTION_TYPE_MAP = {
   multiple_choice: "unique_choice",
   yes_no: "yes_no",
 };
+
+const MAX_AI_QUESTIONS = 12;
+const MIN_AI_PROMPT = 5;
 
 const CreateSurvey = () => {
   const [user] = useAtom(userAtom);
@@ -44,6 +48,10 @@ const CreateSurvey = () => {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isLoadingDraft, setIsLoadingDraft] = useState(Boolean(draftId));
   const [showPublishModal, setShowPublishModal] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiNumQuestions, setAiNumQuestions] = useState(5);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showAiConfirm, setShowAiConfirm] = useState(false);
 
   const questionTypes = [
     { id: "open", label: "Pregunta Abierta" },
@@ -194,6 +202,65 @@ const CreateSurvey = () => {
     setShowPublishModal(true);
   };
 
+  // US-13 — Genera un borrador con IA. Si ya hay preguntas, pide confirmacion.
+  const requestGenerateAI = () => {
+    const prompt = aiPrompt.trim();
+    if (prompt.length < MIN_AI_PROMPT) {
+      toast.error("Describe la idea con al menos 5 caracteres.");
+      return;
+    }
+    const num = Number(aiNumQuestions);
+    if (!Number.isInteger(num) || num < 1 || num > MAX_AI_QUESTIONS) {
+      toast.error(
+        `El número de preguntas debe estar entre 1 y ${MAX_AI_QUESTIONS}.`
+      );
+      return;
+    }
+    if (questions.length > 0) {
+      setShowAiConfirm(true);
+      return;
+    }
+    performGenerateAI();
+  };
+
+  const performGenerateAI = async () => {
+    setIsGenerating(true);
+    setShowAiConfirm(false);
+    try {
+      const res = await generateSurveyDraft({
+        prompt: aiPrompt.trim(),
+        numQuestions: Number(aiNumQuestions),
+      });
+      setTitle(res.title || "");
+      const generated = (res.questions || []).map((q) => {
+        const localId = crypto.randomUUID();
+        const localType = REVERSE_QUESTION_TYPE_MAP[q.question_type] || "open";
+        return {
+          id: localId,
+          type: localType,
+          data: {
+            statement: q.content || "",
+            type: localType,
+            options: q.options || undefined,
+          },
+        };
+      });
+      setQuestions(generated.map(({ id, type }) => ({ id, type })));
+      setAnswersData(
+        generated.reduce((acc, { id, data }) => {
+          acc[id] = data;
+          return acc;
+        }, {})
+      );
+      setAiPrompt("");
+      toast.success(`Borrador generado con ${generated.length} preguntas.`);
+    } catch (err) {
+      toast.error(`Error al generar con IA: ${err.message}`);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const confirmPublish = async () => {
     setIsSubmitting(true);
     try {
@@ -266,6 +333,51 @@ const CreateSurvey = () => {
         <textarea placeholder="Una breve descripción de tu encuesta..." />
       </div>
 
+      {/* ASISTENTE IA */}
+      <div className="card ai-card">
+        <div className="ai-card-header">
+          <span className="ai-card-badge">IA</span>
+          <div>
+            <h3>Asistente IA</h3>
+            <p className="ai-card-subtitle">
+              Describe la idea de tu encuesta y la IA generará un borrador con
+              las preguntas que indiques.
+            </p>
+          </div>
+        </div>
+
+        <label htmlFor="ai-prompt">Contexto o idea *</label>
+        <textarea
+          id="ai-prompt"
+          placeholder="Ej: Encuesta de satisfacción para usuarios de una app de delivery..."
+          value={aiPrompt}
+          maxLength={2000}
+          onChange={(e) => setAiPrompt(e.target.value)}
+          rows={3}
+        />
+
+        <label htmlFor="ai-num">
+          Número de preguntas (máx. {MAX_AI_QUESTIONS})
+        </label>
+        <input
+          id="ai-num"
+          type="number"
+          min={1}
+          max={MAX_AI_QUESTIONS}
+          value={aiNumQuestions}
+          onChange={(e) => setAiNumQuestions(e.target.value)}
+        />
+
+        <button
+          type="button"
+          className="ai-generate-btn"
+          onClick={requestGenerateAI}
+          disabled={isGenerating}
+        >
+          {isGenerating ? "Generando..." : "✨ Generar con IA"}
+        </button>
+      </div>
+
       {/* PREGUNTAS */}
       <div className="card">
         <h3>Preguntas ({questions.length}/12)</h3>
@@ -276,12 +388,17 @@ const CreateSurvey = () => {
             pregunta.
           </div>
         ) : (
-          questions.map((q) => {
+          questions.map((q, index) => {
             const initial = answersData[q.id];
+            const typeLabel =
+              questionTypes.find((t) => t.id === q.type)?.label ?? "Pregunta";
             return (
               <div key={q.id} className="question-container">
                 <div className="question-toolbar">
-                  <span className="question-chip">Pregunta</span>
+                  <span className="question-chip">
+                    <span className="question-chip-num">{index + 1}</span>
+                    {typeLabel}
+                  </span>
                   <button
                     type="button"
                     className="delete-btn"
@@ -329,6 +446,17 @@ const CreateSurvey = () => {
         busy={isSubmitting}
         onConfirm={confirmPublish}
         onCancel={() => setShowPublishModal(false)}
+      />
+
+      <ConfirmModal
+        open={showAiConfirm}
+        title="Reemplazar preguntas actuales"
+        message="Ya tienes preguntas en el formulario. Si generas con IA, se perderán. ¿Continuar?"
+        confirmLabel="Sí, reemplazar"
+        cancelLabel="Cancelar"
+        busy={isGenerating}
+        onConfirm={performGenerateAI}
+        onCancel={() => setShowAiConfirm(false)}
       />
     </div>
   );

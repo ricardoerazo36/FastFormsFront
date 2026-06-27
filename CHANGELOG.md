@@ -1,5 +1,83 @@
 # Changelog
 
+## Sprint 6 — Voz multilingüe y acceso por voz
+
+### US-18 · Internacionalización: Respuestas por Voz Multilingües
+- Las preguntas abiertas dictadas usan `language="auto"`: Whisper detecta el
+  idioma del encuestado sin configuración previa.
+- El idioma detectado se propaga (`onVoiceFlag(questionId, isVoice, language)`)
+  y se envía con cada respuesta (`surveyService` + `SurveyAccess`).
+- `SurveyResults` muestra una etiqueta **🌐 idioma** junto al badge "por voz"
+  en el feed de respuestas abiertas (mapa de códigos ISO → nombre).
+
+### US-19 · Acceso: Ingreso del Código de Encuesta por Voz
+- Botón **🎤 Dictar código** en el `code-card` de `Home`. Envía el audio a
+  `/transcribe` con `normalize=code`; el backend devuelve el código
+  interpretado.
+- Flujo de confirmación: se muestra el código entendido (p. ej. `A7X9K`) con
+  opciones "Sí, entrar" o "Corregir manualmente" (fallback a tecleo) antes de
+  navegar a la encuesta.
+
+### US-12 (cliente)
+- `transcribeAudio` acepta `{ language, task, normalizeCode }` y devuelve
+  además `segments` y `normalized_code`.
+- `VoiceInput` reenvía `task`/`normalizeCode` y expone el idioma y el código
+  normalizado en `onResult`.
+- `submitSurveyResponse` reintenta el insert sin las columnas opcionales
+  (`is_voice`, `language`) si la base aún no está migrada (evita romper el
+  envío del encuestado).
+
+## Sprint 4 — Voz (Whisper)
+
+### US-12 · Infra (frontend)
+- Nuevo helper `transcribeAudio(blob, options)` en `src/lib/apiClient.js`
+  que envía el audio al endpoint `POST /api/v1/transcribe/` y devuelve
+  `{ text, language, confidence }`. Adjunta JWT si hay sesión; las
+  requests anónimas también son aceptadas (necesario para US-14).
+
+### US-13 · Constructor: Dictado de Preguntas
+- Nuevo componente reutilizable `src/components/VoiceInput.jsx` con
+  MediaRecorder, solicitud de permisos y los estados de US-16.
+- En `Question.jsx`, cada campo de enunciado incluye un botón de
+  micrófono. El texto transcrito se inserta en el `input` y queda
+  editable antes de guardar.
+
+### US-14 · Llenado: Respuesta por Voz en Preguntas Abiertas
+- `SurveyQuestionField` (preguntas abiertas) ahora ofrece "Responder
+  por voz": graba, transcribe, escribe la respuesta en el `textarea` y
+  la deja editable. Funciona sin necesidad de cuenta.
+- Degradación elegante: si la transcripción falla, el componente
+  muestra el error y permite reintentar o escribir manualmente.
+
+### US-15 · Accesibilidad: Selección por Voz
+- Nueva utilidad `src/lib/fuzzyMatch.js` (Levenshtein normalizado +
+  inclusión) que empareja la transcripción con la opción más parecida.
+- En preguntas Sí/No y de Opción Múltiple, el botón de voz marca la
+  opción automáticamente cuando la similitud supera
+  `CONFIDENCE_THRESHOLD = 0.7`. Si la confianza es baja se pide
+  confirmación con la opción candidata o se invita a repetir.
+- Tests en `src/lib/fuzzyMatch.test.js`.
+
+### US-16 · UX: Estados de Grabación
+- `VoiceInput` expone los estados visuales **Grabando** (con temporizador
+  y punto pulsante), **Procesando** y **Listo**. Botón para detener /
+  regrabar.
+- Mensaje específico cuando el navegador deniega el permiso de
+  micrófono.
+
+### US-17 · Resultados: Respuestas por Voz
+- El submit de respuestas (`surveyService.submitSurveyResponse`) ahora
+  envía `is_voice` por cada respuesta.
+- `SurveyResults` consume el nuevo campo `text_entries` del backend,
+  muestra un **badge "🎤 por voz"** junto a cada respuesta dictada y
+  añade un **buscador por palabra clave** para preguntas abiertas.
+
+### Infra / Tests
+- `src/test/setup.js` provee stubs de `VITE_SUPABASE_*` para que los
+  tests no fallen al inicializar el cliente Supabase.
+- `base.sql` añade la columna `is_voice` a `answers` (incluye
+  `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` para migrar bases existentes).
+
 ## Sprint 3 — Análisis y Cierre
 
 ### US-10 · Resultados: Visualización Core

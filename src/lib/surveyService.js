@@ -118,13 +118,13 @@ export const submitSurveyResponse = async ({ surveyId, answers }) => {
     throw responseError;
   }
 
-  const answersPayload = answers.map((answer) => ({
+  const rows = answers.map((answer) => ({
     response_id: response.id,
     question_id: answer.questionId,
     answer_text: answer.answer,
   }));
 
-  const { error: answersError } = await supabase.from("answers").insert(answersPayload);
+  const { error: answersError } = await supabase.from("answers").insert(rows);
 
   if (answersError) {
     throw answersError;

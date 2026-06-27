@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 import { userAtom } from "../stores/authAtom";
 import { supabase } from "../lib/supabaseClient";
+import ThemeToggle from "../components/ThemeToggle";
 
 const Header = () => {
   const [user, setUser] = useAtom(userAtom);
@@ -35,6 +36,7 @@ const Header = () => {
       </nav>
 
       <div className="header-right">
+        <ThemeToggle />
         {user ? (
           <>
             <span className="user-name">{user.email.split("@")[0]}</span>

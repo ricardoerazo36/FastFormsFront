@@ -26,11 +26,22 @@ const Question = memo(({
     setChoices(prev => prev.map(c => c.id === choiceId ? { ...c, value } : c));
   };
 
+  const handleAddChoice = () => {
+    setChoices(prev => [...prev, { id: crypto.randomUUID(), value: '' }]);
+  };
+
+  const handleRemoveChoice = (choiceId) => {
+    setChoices(prev => prev.filter(c => c.id !== choiceId));
+  };
+
   return (
-    <div>
-      <label htmlFor={`input-${id}`}>Enunciado de la pregunta ({type}):</label>
+    <div className="question-builder">
+      <label className="question-builder-label" htmlFor={`input-${id}`}>
+        Enunciado de la pregunta
+      </label>
       <input
         id={`input-${id}`}
+        className="question-statement-input"
         type="text"
         value={statement}
         onChange={(e) => setStatement(e.target.value)}
@@ -38,17 +49,40 @@ const Question = memo(({
       />
 
       {type === 'unique_choice' && (
-        <div>
-          {choices.map((choice) => (
-            <input
-              key={choice.id}
-              value={choice.value}
-              onChange={(e) => handleChoiceChange(choice.id, e.target.value)}
-              placeholder="Opción"
-            />
-          ))}
-          <button onClick={() => setChoices([...choices, { id: crypto.randomUUID(), value: '' }])}>
-            + Opción
+        <div className="question-options">
+          <span className="question-options-title">Opciones de respuesta</span>
+
+          {choices.length === 0 ? (
+            <p className="question-options-empty">
+              Aún no has agregado opciones. Añade al menos dos.
+            </p>
+          ) : (
+            <div className="question-options-list">
+              {choices.map((choice, index) => (
+                <div className="option-row" key={choice.id}>
+                  <span className="option-index">{index + 1}</span>
+                  <input
+                    className="option-input"
+                    value={choice.value}
+                    onChange={(e) => handleChoiceChange(choice.id, e.target.value)}
+                    placeholder={`Opción ${index + 1}`}
+                  />
+                  <button
+                    type="button"
+                    className="option-remove-btn"
+                    onClick={() => handleRemoveChoice(choice.id)}
+                    aria-label={`Eliminar opción ${index + 1}`}
+                    title="Eliminar opción"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button type="button" className="add-option-btn" onClick={handleAddChoice}>
+            + Agregar opción
           </button>
         </div>
       )}

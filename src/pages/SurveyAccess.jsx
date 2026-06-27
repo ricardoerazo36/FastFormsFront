@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import SurveyQuestionField from "../components/SurveyQuestionField";
+import AutoFillVoice from "../components/AutoFillVoice";
 import ConfirmModal from "../components/ConfirmModal";
 import { fetchSurveyByCode, submitSurveyResponse } from "../lib/surveyService";
 import "./SurveyAccess.css";
@@ -48,6 +49,12 @@ const SurveyAccess = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  // US-15 t2 — autorrellenado por voz.
+  const [autoFillBusy, setAutoFillBusy] = useState(false);
+  const [autoFillRecording, setAutoFillRecording] = useState(false);
+  const [autoFillProcessing, setAutoFillProcessing] = useState(false);
+  const [autoFillError, setAutoFillError] = useState("");
+  const [showOverwriteConfirm, setShowOverwriteConfirm] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -59,6 +66,11 @@ const SurveyAccess = () => {
       setTechnicalError("");
       setSubmitError("");
       setShowConfirmModal(false);
+      setAutoFillBusy(false);
+      setAutoFillRecording(false);
+      setAutoFillProcessing(false);
+      setAutoFillError("");
+      setShowOverwriteConfirm(false);
 
       // US-08 — si ya respondió esta encuesta (LocalStorage), no la volvemos a cargar
       if (hasAlreadyAnswered(surveyCode)) {
@@ -112,6 +124,92 @@ const SurveyAccess = () => {
       delete updatedErrors[questionId];
       return updatedErrors;
     });
+  };
+
+  // US-15 t2 — Devuelve true si el usuario ya tiene alguna respuesta escrita.
+  const hasUserAnswers = useMemo(() => {
+    return Object.values(answers).some(
+      (value) => typeof value === "string" && value.trim().length > 0
+    );
+  }, [answers]);
+
+  const autoFillRef = useRef(null);
+
+  // US-15 t2 — Aplica el resultado del autorrellenado al estado.
+  const handleAutoFillResult = (result) => {
+    const filledAnswers = Array.isArray(result?.answers) ? result.answers : [];
+    if (filledAnswers.length === 0) {
+      setAutoFillError("La IA no detecto respuestas en el audio. Intentalo de nuevo.");
+      return;
+    }
+    const hasAnyValue = filledAnswers.some(
+      (a) => a && a.question_id != null && a.answer_text != null
+    );
+    if (!hasAnyValue) {
+      setAutoFillError("La IA no detecto respuestas en el audio. Intentalo de nuevo.");
+      return;
+    }
+    setAnswers((current) => {
+      const next = { ...current };
+      filledAnswers.forEach((a) => {
+        if (a && a.question_id != null && a.answer_text != null) {
+          next[a.question_id] = a.answer_text;
+        }
+      });
+      return next;
+    });
+    setFieldErrors((current) => {
+      const next = { ...current };
+      filledAnswers.forEach((a) => {
+        if (a && a.question_id != null && a.answer_text != null) {
+          delete next[a.question_id];
+        }
+      });
+      return next;
+    });
+    setAutoFillError("");
+  };
+
+  const handleAutoFillBusyChange = useCallback((busy) => {
+    setAutoFillBusy(Boolean(busy));
+  }, []);
+
+  const handleAutoFillRecordingChange = useCallback((recording) => {
+    setAutoFillRecording(Boolean(recording));
+  }, []);
+
+  const handleAutoFillProcessingChange = useCallback((processing) => {
+    setAutoFillProcessing(Boolean(processing));
+  }, []);
+
+  // AutoFillVoice ya muestra sus propios errores internos (permisos,
+  // navegador incompatible, etc.). El padre solo limpia el error
+  // "resultado vacio" propio cuando arranca un nuevo intento.
+  const handleAutoFillError = useCallback(() => {
+    setAutoFillError("");
+  }, []);
+
+  // US-15 t2 — Gate: si el usuario ya tiene respuestas, pedimos confirmacion
+  // antes de sobrescribirlas. Devuelve false para que AutoFillVoice aborte.
+  const handleBeforeAutoFill = useCallback(() => {
+    if (autoFillBusy) return false;
+    setAutoFillError("");
+    if (hasUserAnswers) {
+      setShowOverwriteConfirm(true);
+      return false;
+    }
+    return true;
+  }, [autoFillBusy, hasUserAnswers]);
+
+  const confirmOverwriteAutoFill = () => {
+    setShowOverwriteConfirm(false);
+    if (autoFillRef.current) {
+      autoFillRef.current.start({ force: true });
+    }
+  };
+
+  const cancelOverwriteAutoFill = () => {
+    setShowOverwriteConfirm(false);
   };
 
   const validateAnswers = () => {
@@ -177,7 +275,11 @@ const SurveyAccess = () => {
     <div className="survey-access-page">
       <div className="survey-access-shell">
         <div className="survey-access-header">
-          <button className="back-btn" onClick={() => navigate("/")}>
+          <button
+            className="back-btn"
+            onClick={() => navigate("/")}
+            disabled={autoFillBusy || autoFillRecording}
+          >
             ←
           </button>
 
@@ -248,6 +350,52 @@ const SurveyAccess = () => {
               <span className="survey-state-meta">{questionCountLabel}</span>
             </section>
 
+            <section className="card autofill-voice-card">
+              <div className="autofill-voice-header">
+                <span className="autofill-voice-icon" aria-hidden="true">
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="9" y="2" width="6" height="12" rx="3" />
+                    <path d="M5 10a7 7 0 0 0 14 0" />
+                    <line x1="12" y1="17" x2="12" y2="22" />
+                    <line x1="8" y1="22" x2="16" y2="22" />
+                  </svg>
+                </span>
+                <div>
+                  <h3 className="autofill-voice-title">Autorrellenar por voz</h3>
+                  <p className="autofill-voice-subtitle">
+                    Dicta todas tus respuestas y la IA las organizara por pregunta.
+                    Podras revisar y corregir antes de enviar.
+                  </p>
+                </div>
+              </div>
+
+              <AutoFillVoice
+                ref={autoFillRef}
+                surveyCode={surveyCode}
+                onResult={handleAutoFillResult}
+                onBusyChange={handleAutoFillBusyChange}
+                onRecordingChange={handleAutoFillRecordingChange}
+                onProcessingChange={handleAutoFillProcessingChange}
+                onError={handleAutoFillError}
+                onBeforeStart={handleBeforeAutoFill}
+              />
+
+              {autoFillError ? (
+                <p className="autofill-voice-error" role="alert">
+                  {autoFillError}
+                </p>
+              ) : null}
+            </section>
+
             <section className="card">
               <h3>Preguntas</h3>
 
@@ -258,6 +406,7 @@ const SurveyAccess = () => {
                   value={answers[question.id] ?? ""}
                   error={fieldErrors[question.id]}
                   onChange={handleAnswerChange}
+                  readOnly={autoFillRecording}
                 />
               ))}
             </section>
@@ -265,7 +414,11 @@ const SurveyAccess = () => {
             <section className="card survey-submit-card">
               {submitError ? <p className="survey-submit-error">{submitError}</p> : null}
 
-              <button className="publish-btn" type="submit" disabled={submitting}>
+              <button
+                className="publish-btn"
+                type="submit"
+                disabled={submitting || autoFillBusy || autoFillRecording}
+              >
                 {submitting ? "Enviando respuestas..." : "Enviar respuestas"}
               </button>
             </section>
@@ -282,7 +435,32 @@ const SurveyAccess = () => {
           onConfirm={confirmSubmit}
           onCancel={() => setShowConfirmModal(false)}
         />
+
+        <ConfirmModal
+          open={showOverwriteConfirm}
+          title="Ya tienes respuestas"
+          message="Si activas el autorrellenado por voz, se reemplazaran las respuestas que ya escribiste. ¿Continuar?"
+          confirmLabel="Si, reemplazar"
+          cancelLabel="Cancelar"
+          onConfirm={confirmOverwriteAutoFill}
+          onCancel={cancelOverwriteAutoFill}
+        />
       </div>
+
+      {autoFillProcessing ? (
+        <div
+          className="autofill-blocking-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Procesando autorrellenado"
+        >
+          <div className="autofill-spinner" aria-hidden="true" />
+          <h2 className="autofill-blocking-title">Procesando tus respuestas con IA</h2>
+          <p className="autofill-blocking-subtitle">
+            Esto puede tardar unos segundos. Por favor, no cierres la encuesta.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 };

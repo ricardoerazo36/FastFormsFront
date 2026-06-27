@@ -1,0 +1,235 @@
+.sentiment-panel {
+  margin-top: 16px;
+  background: linear-gradient(180deg, var(--bg-soft) 0%, var(--bg-card) 100%);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  display: grid;
+  gap: 14px;
+  animation: sentiment-fade-in 0.25s ease-out;
+}
+
+@keyframes sentiment-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sentiment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sentiment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.sentiment-badge-emoji {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.sentiment-pos {
+  background: #ecfdf3;
+  color: #027a48;
+  border-color: #abefc6;
+}
+
+.sentiment-neg {
+  background: #fef3f2;
+  color: #b42318;
+  border-color: #fecdca;
+}
+
+.sentiment-neu {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+.sentiment-mix {
+  background: #fffaeb;
+  color: #b54708;
+  border-color: #fedf89;
+}
+
+.sentiment-score {
+  font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 10px;
+  min-width: 64px;
+  text-align: center;
+}
+
+.sentiment-distribution {
+  display: grid;
+  gap: 10px;
+}
+
+.sentiment-bar-row {
+  display: grid;
+  gap: 6px;
+}
+
+.sentiment-bar-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.sentiment-bar-count {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.sentiment-bar-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: var(--bg-soft);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.sentiment-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sentiment-bar-pos {
+  background: linear-gradient(90deg, #34d399 0%, #10b981 100%);
+}
+
+.sentiment-bar-neg {
+  background: linear-gradient(90deg, #f87171 0%, #ef4444 100%);
+}
+
+.sentiment-bar-neu {
+  background: linear-gradient(90deg, #94a3b8 0%, #64748b 100%);
+}
+
+.sentiment-summary {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.55;
+  font-size: 14px;
+  text-align: justify;
+}
+
+.sentiment-themes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sentiment-themes-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.sentiment-themes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sentiment-theme-chip {
+  background: var(--primary-50);
+  color: var(--primary-dark);
+  border: 1px solid var(--primary-200, #c7d2fe);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sentiment-footer {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: right;
+  border-top: 1px dashed var(--border);
+  padding-top: 8px;
+}
+
+.sentiment-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.sentiment-loading-dots {
+  color: var(--primary);
+  font-size: 8px;
+  letter-spacing: 2px;
+  animation: sentiment-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes sentiment-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.sentiment-error {
+  display: grid;
+  gap: 4px;
+  background: #fef3f2;
+  border-color: #fecdca;
+  color: #b42318;
+  font-size: 14px;
+}
+
+.sentiment-error strong {
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .sentiment-panel {
+    padding: 14px;
+  }
+
+  .sentiment-badge {
+    font-size: 13px;
+    padding: 5px 10px;
+  }
+
+  .sentiment-score {
+    font-size: 16px;
+  }
+}

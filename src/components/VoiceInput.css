@@ -1,0 +1,68 @@
+/* US-16 — Estilos del componente <VoiceInput>. */
+
+.voice-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.voice-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--primary-200, #c7d2fe);
+  background: var(--primary-50, #eef2ff);
+  color: var(--primary, #4f46e5);
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.voice-btn:hover {
+  background: var(--primary-100, #e0e7ff);
+  border-color: var(--primary, #4f46e5);
+}
+
+.voice-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.voice-btn-recording {
+  background: #fee4e2;
+  border-color: #f97066;
+  color: #b42318;
+}
+
+.voice-btn-recording::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: #d92d20;
+  border-radius: 50%;
+  animation: voice-pulse 1s infinite;
+}
+
+@keyframes voice-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.4); }
+}
+
+.voice-status {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.voice-status-error {
+  color: #b42318;
+}
+
+.voice-status-success {
+  color: #027a48;
+}

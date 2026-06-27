@@ -78,6 +78,19 @@ export function getSurveyResults(surveyId) {
 }
 
 /**
+ * US-16 — Analiza el sentimiento agregado de las respuestas abiertas de una
+ * pregunta. Solo permitido para encuestas en estado `closed`.
+ * @param {number|string} surveyId
+ * @param {number|string} questionId
+ */
+export function analyzeSentiment(surveyId, questionId) {
+  return request(
+    `surveys/${surveyId}/questions/${questionId}/sentiment-analysis`,
+    { method: "POST" }
+  );
+}
+
+/**
  * Exporta los resultados de una encuesta a CSV y descarga el archivo.
  * Solo el creador de la encuesta puede exportar (validado por el backend).
  * @param {number|string} surveyId
@@ -135,4 +148,107 @@ export function updateDraft(draftId, draftData) {
  */
 export function getSurvey(surveyId) {
   return request(`surveys/${surveyId}`, { method: "GET" });
+}
+
+/**
+ * US-13 — Genera un borrador de encuesta con IA (Gemini) en backend.
+ * No persiste nada: el frontend inyecta el JSON en el formulario.
+ * @param {{ prompt: string, numQuestions: number, language?: string }} payload
+ */
+export function generateSurveyDraft({ prompt, numQuestions, language = "es" }) {
+  return request("surveys/generate", {
+    method: "POST",
+    body: JSON.stringify({
+      prompt,
+      num_questions: numQuestions,
+      language,
+    }),
+  });
+}
+
+/**
+ * US-12 — Envia el audio grabado al backend para transcribirlo con Whisper local.
+ * El token se incluye si hay sesion (US-13 / Constructor), pero el endpoint
+ * tambien acepta requests anonimas (US-14 / Encuestado).
+ * @param {Blob} audioBlob
+ * @param {{ language?: string, task?: "transcribe"|"translate", normalizeCode?: boolean, filename?: string }} [options]
+ *   - language: codigo ISO ("es"), "auto" para detectar (US-18), o vacio.
+ *   - task: "translate" para traducir a ingles (US-18).
+ *   - normalizeCode: true para que el backend devuelva normalized_code (US-19).
+ * @returns {Promise<{ text: string, language: string, confidence: number | null, segments: Array, normalized_code: string | null }>}
+ */
+export async function transcribeAudio(audioBlob, options = {}) {
+  const { language = "es", task, normalizeCode, filename } = options;
+  const extension = (audioBlob.type || "audio/webm").split("/")[1]?.split(";")[0] || "webm";
+  const blobName = filename || `clip.${extension}`;
+
+  const formData = new FormData();
+  formData.append("audio", audioBlob, blobName);
+  if (language) {
+    formData.append("language", language);
+  }
+  if (task) {
+    formData.append("task", task);
+  }
+  if (normalizeCode) {
+    formData.append("normalize", "code");
+  }
+
+  const headers = {};
+  const token = await getToken().catch(() => null);
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}transcribe/`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail || `Error ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * US-15 t2 — Autorrellena una encuesta a partir de un audio + código.
+ * El backend transcribe el audio, lo manda a Gemini y devuelve las respuestas
+ * sugeridas (con `answer_text=null` en lo que no haya podido mapear).
+ * No persiste nada: el frontend inyecta el resultado y el usuario confirma
+ * antes del `POST /responses/` definitivo.
+ * @param {Blob} audioBlob
+ * @param {{ code: string, language?: string }} options
+ * @returns {Promise<{ survey_id: number, answers: Array<{ question_id: number, answer_text: string|null }> }>}
+ */
+export async function autoFillSurvey(audioBlob, { code, language = "es" }) {
+  const extension = (audioBlob.type || "audio/webm").split("/")[1]?.split(";")[0] || "webm";
+  const formData = new FormData();
+  formData.append("audio", audioBlob, `clip.${extension}`);
+  formData.append("code", code);
+  if (language) {
+    formData.append("language", language);
+  }
+
+  const headers = {};
+  const token = await getToken().catch(() => null);
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}responses/auto-fill`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail || `Error ${response.status}`);
+  }
+
+  return response.json();
 }

@@ -13,27 +13,42 @@
 
 .results-header h1 {
   margin: 0;
-  color: #111827;
+  color: var(--text);
   font-size: 22px;
 }
 
 .back-btn {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  width: 40px;
-  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
   font-size: 18px;
+  line-height: 1;
+  color: var(--text);
   cursor: pointer;
   flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.back-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary-200);
+  background: var(--primary-50);
+  transform: translateX(-2px);
 }
 
 .results-state {
-  color: #6b7280;
-  background: #fff;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 22px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: var(--shadow-lg);
 }
 
 .results-state-error {
@@ -54,7 +69,7 @@
 }
 
 .results-summary {
-  color: #4f46e5;
+  color: var(--primary);
   font-weight: 600;
   margin: 0;
 }
@@ -93,26 +108,135 @@
 }
 
 .results-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 14px;
   padding: 22px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, background 0.3s ease, border-color 0.3s ease;
 }
 
 .results-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
+  box-shadow: var(--shadow-xl);
 }
 
 .results-card h3 {
   margin: 0 0 16px;
-  color: #111827;
+  color: var(--text);
+}
+
+.results-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.results-card-header h3 {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sentiment-action {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.sentiment-help {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.35;
+  text-align: left;
+  max-width: 200px;
+}
+
+.sentiment-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.35), 0 2px 6px rgba(236, 72, 153, 0.2);
+  position: relative;
+  overflow: hidden;
+  animation: sentiment-pulse 2.4s ease-in-out infinite;
+}
+
+.sentiment-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 60%);
+  pointer-events: none;
+}
+
+.sentiment-btn-icon {
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+  animation: sentiment-sparkle 2s ease-in-out infinite;
+}
+
+.sentiment-btn-label {
+  position: relative;
+  z-index: 1;
+}
+
+.sentiment-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.45), 0 4px 10px rgba(236, 72, 153, 0.3);
+  animation: none;
+}
+
+.sentiment-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+
+.sentiment-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+  animation: none;
+}
+
+@keyframes sentiment-pulse {
+  0%, 100% {
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.35), 0 2px 6px rgba(236, 72, 153, 0.2);
+  }
+  50% {
+    box-shadow: 0 10px 32px rgba(139, 92, 246, 0.55), 0 4px 12px rgba(236, 72, 153, 0.35);
+  }
+}
+
+@keyframes sentiment-sparkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.15) rotate(8deg);
+  }
 }
 
 .results-empty-question {
-  color: #9ca3af;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -127,11 +251,11 @@
 }
 
 .results-text-feed li {
-  background: #f9fafb;
-  border: 1px solid #eef0f5;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px 14px;
-  color: #374151;
+  color: var(--text);
   line-height: 1.5;
 }
 
@@ -174,6 +298,25 @@
     font-size: 15px;
   }
 
+  .results-card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sentiment-btn {
+    align-self: flex-start;
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+
+  .sentiment-action {
+    align-items: center;
+  }
+
+  .sentiment-help {
+    text-align: left;
+  }
+
   .results-summary-row {
     flex-direction: column;
     align-items: flex-start;
@@ -196,4 +339,69 @@
     padding: 10px 12px;
     font-size: 14px;
   }
+}
+
+/* US-17 — Buscador y badge "por voz". */
+.results-search-row {
+  margin-bottom: 16px;
+}
+
+.results-search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  font-size: 14px;
+  background: var(--bg-card);
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.results-search-input:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.18);
+  background: var(--bg-card);
+}
+
+.results-text-feed-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.results-voice-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--primary-50);
+  color: var(--primary-dark);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* US-18 — Etiqueta de idioma detectado. */
+.results-entry-tags {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.results-lang-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ecfdf3;
+  color: #027a48;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }

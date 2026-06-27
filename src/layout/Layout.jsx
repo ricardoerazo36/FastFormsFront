@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import { useAtom } from 'jotai'
 import { userAtom, loadingAtom } from '../stores/authAtom'
+import { useThemeApplier } from '../stores/themeAtom'
 import { supabase } from '../lib/supabaseClient'
 import { Toaster } from 'react-hot-toast'
 import Header from './Header'
@@ -11,6 +12,7 @@ import './Layout.css'
 const Layout = () => {
     const [, setUser] = useAtom(userAtom)
     const [loading, setLoading] = useAtom(loadingAtom)
+    useThemeApplier()
 
     useEffect(() => {
         // Inicializar la sesión cuando se carga la aplicación

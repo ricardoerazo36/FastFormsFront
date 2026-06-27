@@ -1,0 +1,272 @@
+/* US-15 t2 — Estilos del componente <AutoFillVoice>. */
+
+/* Estado idle: card informativa con el boton de microfono */
+
+.autofill-voice-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.autofill-voice-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: none;
+  background: #ffffff;
+  color: #5b21b6;
+  padding: 14px 22px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 6px 18px rgba(255, 255, 255, 0.18);
+}
+
+.autofill-voice-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(255, 255, 255, 0.28);
+  background: #f8fafc;
+}
+
+.autofill-voice-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.autofill-voice-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+}
+
+.autofill-voice-hint {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+}
+
+.autofill-voice-error {
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  color: #fecaca;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Modal de confirmacion con instrucciones */
+
+.autofill-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.78);
+  padding: 24px;
+  animation: autofill-fade-in 0.2s ease;
+}
+
+@keyframes autofill-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.autofill-confirm-card {
+  background: #ffffff;
+  color: var(--text, #1f2937);
+  border-radius: 18px;
+  padding: 28px 28px 24px;
+  max-width: 460px;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+}
+
+.autofill-confirm-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+}
+
+.autofill-confirm-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.autofill-confirm-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.autofill-confirm-list li em {
+  font-style: italic;
+  color: #4f46e5;
+  background: rgba(99, 102, 241, 0.08);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.autofill-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.autofill-cancel-btn {
+  background: transparent;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.autofill-cancel-btn:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+  border-color: #9ca3af;
+}
+
+.autofill-confirm-start-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.autofill-confirm-start-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(239, 68, 68, 0.4);
+}
+
+/* Boton flotante de detener grabacion */
+
+.autofill-floating-stop-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8500;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  padding: 14px 22px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(239, 68, 68, 0.45);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  animation: autofill-floating-pulse 1.6s ease-in-out infinite;
+}
+
+.autofill-floating-stop-btn:hover {
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 16px 36px rgba(239, 68, 68, 0.55);
+}
+
+.autofill-floating-stop-btn:active {
+  transform: translateX(-50%) translateY(0);
+}
+
+@keyframes autofill-floating-pulse {
+  0%, 100% { box-shadow: 0 12px 28px rgba(239, 68, 68, 0.45), 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50%      { box-shadow: 0 12px 28px rgba(239, 68, 68, 0.45), 0 0 0 16px rgba(239, 68, 68, 0); }
+}
+
+.autofill-floating-stop-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.autofill-floating-stop-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+.autofill-floating-stop-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.autofill-floating-stop-time {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Spinner reusado por el overlay de bloqueo del padre (SurveyAccess). */
+
+.autofill-spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 5px solid rgba(165, 180, 252, 0.25);
+  border-top-color: #a5b4fc;
+  animation: autofill-spin 0.8s linear infinite;
+  margin: 4px 0;
+}
+
+@keyframes autofill-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+  .autofill-floating-stop-btn {
+    bottom: 16px;
+    padding: 12px 18px;
+    font-size: 15px;
+  }
+}
